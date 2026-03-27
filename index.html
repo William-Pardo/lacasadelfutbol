@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Casa del Fútbol - Royal Films</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --col-yellow: #FCD116;
+            --col-blue: #003893;
+            --col-red: #CE1126;
+            --col-dark: #0a0a0a;
+            --col-gold: #d4af37;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--col-dark);
+            color: white;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+            scroll-behavior: smooth;
+        }
+
+        @media (min-width: 768px) {
+            body { padding-bottom: 0; }
+        }
+
+        h1, h2, h3, .font-bebas {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(252, 209, 22, 0.3);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .desktop-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.95), transparent);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            transition: all 0.3s ease;
+        }
+
+        .desktop-nav.scrolled {
+            background: rgba(10, 10, 10, 0.98);
+            border-bottom: 1px solid rgba(252, 209, 22, 0.2);
+            height: 70px;
+        }
+
+        @media (min-width: 768px) {
+            .mobile-nav { display: none; }
+            .desktop-nav { display: flex; }
+        }
+
+        .btn-football {
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: 0.4s;
+            border: 2px solid var(--col-yellow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-football::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--col-yellow);
+            transition: 0.4s;
+            z-index: -1;
+        }
+
+        .btn-football:hover::before {
+            left: 0;
+        }
+
+        .btn-football:hover {
+            color: black;
+        }
+
+        .stadium-overlay {
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .tab-content {
+            display: none;
+            opacity: 0;
+        }
+
+        .tab-content.active-tab {
+            display: block;
+            animation: fadeInTab 0.5s forwards;
+        }
+
+        @keyframes fadeInTab {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .colombia-border {
+            height: 6px;
+            width: 100%;
+            background: linear-gradient(to right, var(--col-yellow) 33.3%, var(--col-blue) 33.3% 66.6%, var(--col-red) 66.6%);
+        }
+
+        .badge-royal {
+            background: linear-gradient(to bottom, var(--col-yellow), var(--col-gold));
+            color: black;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+        
+        .tab-btn.active-btn {
+            border-color: var(--col-yellow);
+            color: var(--col-yellow);
+            background: rgba(252, 209, 22, 0.1);
+        }
+
+        .featured-image {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="desktop-nav" id="desktopNav">
+        <div class="flex items-center gap-2">
+            <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-black font-bold shadow-[0_0_15px_rgba(252,209,22,0.4)]">RF</div>
+            <span class="text-xl font-bebas tracking-widest">ROYAL FILMS</span>
+        </div>
+        <div class="flex items-center gap-8">
+            <a href="#inicio" class="text-sm font-bold uppercase tracking-widest hover:text-yellow-500 transition">Inicio</a>
+            <a href="#estrategia" class="text-sm font-bold uppercase tracking-widest hover:text-yellow-500 transition">Valor</a>
+            <a href="#mvp" class="text-sm font-bold uppercase tracking-widest hover:text-yellow-500 transition">Ejecución</a>
+            <a href="#comercial" class="text-sm font-bold uppercase tracking-widest hover:text-yellow-500 transition">Oferta</a>
+            <a href="#comercial" class="btn-football px-6 py-2 text-xs font-bold rounded-sm">Reservar Puesto</a>
+        </div>
+    </nav>
+
+    <nav class="mobile-nav">
+        <a href="#inicio" class="flex flex-col items-center text-gray-400 hover:text-yellow-500 transition">
+            <i class="fas fa-home text-xl"></i>
+            <span class="text-[10px] uppercase font-bold mt-1">Inicio</span>
+        </a>
+        <a href="#estrategia" class="flex flex-col items-center text-gray-400 hover:text-yellow-500 transition">
+            <i class="fas fa-gem text-xl"></i>
+            <span class="text-[10px] uppercase font-bold mt-1">Valor</span>
+        </a>
+        <a href="#mvp" class="flex flex-col items-center text-gray-400 hover:text-yellow-500 transition">
+            <i class="fas fa-play-circle text-xl"></i>
+            <span class="text-[10px] uppercase font-bold mt-1">Ejecución</span>
+        </a>
+        <a href="#comercial" class="flex flex-col items-center text-gray-400 hover:text-yellow-500 transition">
+            <i class="fas fa-tags text-xl"></i>
+            <span class="text-[10px] uppercase font-bold mt-1">Oferta</span>
+        </a>
+    </nav>
+
+    <header id="inicio" class="relative min-h-screen flex items-center justify-center stadium-overlay px-4">
+        <div class="absolute top-6 left-6 md:hidden">
+            <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-black font-bold shadow-[0_0_15px_rgba(252,209,22,0.5)]">RF</div>
+        </div>
+        
+        <div class="text-center w-full max-w-4xl pt-10">
+            <h2 class="text-yellow-500 text-lg md:text-2xl font-bebas mb-2 tracking-[0.2em] animate-pulse">EL PRÓXIMO PARTIDO NO SE VERÁ SOLO</h2>
+            <h1 class="text-5xl md:text-9xl font-bebas leading-none mb-6 drop-shadow-2xl">LA CASA DEL <span class="text-yellow-500">FÚTBOL</span></h1>
+            <p class="text-lg md:text-2xl font-light mb-10 text-gray-300 max-w-2xl mx-auto px-4">Transformamos cada partido en la mejor experiencia colectiva fuera del estadio.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 px-6">
+                <a href="#estrategia" class="btn-football px-10 py-4 font-bold uppercase tracking-widest rounded-sm text-sm">Explorar Propuesta</a>
+                <a href="#comercial" class="px-10 py-4 border border-white/30 font-bold uppercase tracking-widest hover:bg-white/10 transition rounded-sm text-sm">Ver Oferta</a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-24 md:bottom-10 animate-bounce text-yellow-500">
+            <i class="fas fa-chevron-down text-2xl"></i>
+        </div>
+    </header>
+
+    <div class="colombia-border"></div>
+
+    <section id="estrategia" class="py-16 md:py-32 px-6 max-w-7xl mx-auto reveal">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div class="glass p-8 rounded-2xl border-l-4 border-yellow-500">
+                <i class="fas fa-couch text-3xl text-yellow-500 mb-6"></i>
+                <h3 class="text-2xl font-bebas mb-4">CONFORT TOTAL</h3>
+                <p class="text-gray-400 text-sm mb-6">Sillas tipo cine reclinables y servicio directo a tu puesto. Sin el caos de un bar tradicional.</p>
+                <button class="text-yellow-500 font-bold text-xs uppercase tracking-widest hover:underline">Ver comodidades <i class="fas fa-arrow-right ml-1"></i></button>
+            </div>
+            <div class="glass p-8 rounded-2xl border-l-4 border-blue-500">
+                <i class="fas fa-bolt text-3xl text-blue-500 mb-6"></i>
+                <h3 class="text-2xl font-bebas mb-4">INMERSIÓN REAL</h3>
+                <p class="text-gray-400 text-sm mb-6">Pantalla gigante y sonido Dolby Atmos que te traslada directamente al campo de juego.</p>
+                <button class="text-blue-500 font-bold text-xs uppercase tracking-widest hover:underline">Especificaciones <i class="fas fa-arrow-right ml-1"></i></button>
+            </div>
+            <div class="glass p-8 rounded-2xl border-l-4 border-red-500">
+                <i class="fas fa-shield-alt text-3xl text-red-500 mb-6"></i>
+                <h3 class="text-2xl font-bebas mb-4">ACCESO SEGURO</h3>
+                <p class="text-gray-400 text-sm mb-6">Ubicaciones centrales en centros comerciales, seguridad y reserva anticipada de tu silla.</p>
+                <button class="text-red-500 font-bold text-xs uppercase tracking-widest hover:underline">Sedes disponibles <i class="fas fa-arrow-right ml-1"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <section id="mvp" class="py-16 md:py-24 bg-zinc-950/50 reveal">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl md:text-6xl font-bebas mb-4">EJECUCIÓN DEL <span class="text-yellow-500">MVP</span></h2>
+                <div class="w-24 h-1 bg-yellow-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 mb-8 bg-white/5 p-2 rounded-xl">
+                <button onclick="showTab('fase1')" class="tab-btn px-6 py-3 font-bebas text-lg border-b-2 border-transparent transition-all" id="btn-fase1">FASE 1: PRE-PARTIDO</button>
+                <button onclick="showTab('fase2')" class="tab-btn active-btn px-6 py-3 font-bebas text-lg border-b-2 transition-all" id="btn-fase2">FASE 2: EL EVENTO</button>
+                <button onclick="showTab('fase3')" class="tab-btn px-6 py-3 font-bebas text-lg border-b-2 border-transparent transition-all" id="btn-fase3">FASE 3: POST-PARTIDO</button>
+            </div>
+
+            <div class="relative">
+                <div id="fase1" class="tab-content glass p-6 md:p-10 rounded-3xl border-yellow-500/20">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                        <div>
+                            <span class="badge-royal mb-4 inline-block">Anticipación</span>
+                            <h3 class="text-3xl font-bebas mb-6">DESEO Y CONVOCATORIA</h3>
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-yellow-500"></i> Pauta digital geolocalizada por ciudades</li>
+                                <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-yellow-500"></i> Campaña de "Tribuna Agotándose"</li>
+                                <li class="flex items-center gap-3 text-gray-300"><i class="fas fa-check text-yellow-500"></i> Alianzas con micro-influenciadores locales</li>
+                            </ul>
+                            <button class="btn-football px-8 py-3 font-bold uppercase tracking-widest text-xs rounded-sm">Ver Estrategia Digital</button>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&w=800&q=80" alt="Hinchas" class="rounded-2xl border border-white/10 w-full shadow-2xl">
+                    </div>
+                </div>
+
+                <div id="fase2" class="tab-content active-tab glass p-6 md:p-10 rounded-3xl border-blue-500/20">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                        <div class="order-2 md:order-1">
+                            <img src="https://i.ibb.co/7J0MYY85/La-Casa-del-Futbol.jpg" alt="La Casa del Fútbol" class="featured-image">
+                        </div>
+                        <div class="order-1 md:order-2">
+                            <span class="badge-royal mb-4 inline-block bg-blue-600 text-white">Experiencia</span>
+                            <h3 class="text-3xl font-bebas mb-6">EL MOMENTO DE LA VERDAD</h3>
+                            <p class="text-gray-400 text-sm mb-6 leading-relaxed">Ambientación de sala con colores de la selección, activaciones en vivo, trivias por QR en pantalla y combos de comida temáticos para el parche de amigos.</p>
+                            <button class="btn-football px-8 py-3 font-bold uppercase tracking-widest text-xs rounded-sm border-blue-500 before:bg-blue-600">Ver Activaciones</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="fase3" class="tab-content glass p-6 md:p-10 rounded-3xl border-red-500/20">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                        <div>
+                            <span class="badge-royal mb-4 inline-block bg-red-600 text-white">Retención</span>
+                            <h3 class="text-3xl font-bebas mb-6">RECOMPRA Y COMUNIDAD</h3>
+                            <p class="text-gray-400 text-sm mb-6 leading-relaxed">Fidelización mediante cupones de "Revancha" para el siguiente partido y abonos exclusivos para toda la temporada de eliminatorias.</p>
+                            <button class="btn-football px-8 py-3 font-bold uppercase tracking-widest text-xs rounded-sm border-red-500 before:bg-red-600">Estrategia CRM</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white/5 p-6 rounded-2xl text-center border border-white/10"><i class="fas fa-gift text-red-500 text-2xl mb-3"></i><p class="text-xs uppercase font-bold">Cupones de Descuento</p></div>
+                            <div class="bg-white/5 p-6 rounded-2xl text-center border border-white/10"><i class="fas fa-users text-red-500 text-2xl mb-3"></i><p class="text-xs uppercase font-bold">Abonos de Temporada</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="comercial" class="py-20 md:py-32 px-6 reveal">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-6xl font-bebas mb-4">OFERTA <span class="text-yellow-500">COMERCIAL</span></h2>
+                <div class="w-16 h-1 bg-yellow-500 mx-auto"></div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass p-8 rounded-3xl border border-white/10 flex flex-col group hover:border-yellow-500 transition-all duration-300">
+                    <h4 class="text-2xl font-bebas mb-2">BOLETA SIMPLE</h4>
+                    <p class="text-xs text-gray-500 mb-6 italic">"Solo quiero ver el juego"</p>
+                    <ul class="text-sm space-y-4 mb-8 flex-grow">
+                        <li><i class="fas fa-check text-yellow-500 mr-2"></i> Entrada General</li>
+                        <li><i class="fas fa-check text-yellow-500 mr-2"></i> Sonido Dolby</li>
+                        <li><i class="fas fa-check text-yellow-500 mr-2"></i> Silla Reclinable</li>
+                    </ul>
+                    <button class="w-full py-4 border border-yellow-500 text-yellow-500 text-xs font-bold uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition">Seleccionar</button>
+                </div>
+                <div class="glass p-8 rounded-3xl border-2 border-yellow-500 flex flex-col relative bg-yellow-500/10 scale-105 z-10">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase">Más Vendido</div>
+                    <h4 class="text-2xl font-bebas mb-2">COMBO LOCAL</h4>
+                    <p class="text-xs text-gray-500 mb-6 italic">"Kit completo del hincha"</p>
+                    <ul class="text-sm space-y-4 mb-8 flex-grow">
+                        <li><i class="fas fa-check text-yellow-500 mr-2"></i> Entrada + Combo Grande</li>
+                        <li><i class="fas fa-check text-yellow-500 mr-2"></i> Ubicación Central</li>
+                        <li><i class="fas fa-check text-yellow-500 mr-2"></i> Sticker de la Selección</li>
+                    </ul>
+                    <button class="w-full py-4 bg-yellow-500 text-black text-xs font-bold uppercase tracking-widest hover:bg-yellow-400 transition shadow-lg shadow-yellow-500/20">Seleccionar</button>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-white/10 flex flex-col group hover:border-blue-500 transition-all duration-300">
+                    <h4 class="text-2xl font-bebas mb-2">PARCHE DE 4</h4>
+                    <p class="text-xs text-gray-500 mb-6 italic">"Para la banda de amigos"</p>
+                    <ul class="text-sm space-y-4 mb-8 flex-grow">
+                        <li><i class="fas fa-check text-blue-500 mr-2"></i> 4 Boletas + 2 Combos</li>
+                        <li><i class="fas fa-check text-blue-500 mr-2"></i> Ahorro del 20%</li>
+                        <li><i class="fas fa-check text-blue-500 mr-2"></i> Fila reservada</li>
+                    </ul>
+                    <button class="w-full py-4 border border-blue-500 text-blue-500 text-xs font-bold uppercase tracking-widest hover:bg-blue-500 hover:text-white transition">Seleccionar</button>
+                </div>
+                <div class="glass p-8 rounded-3xl border border-white/10 flex flex-col group hover:border-red-500 transition-all duration-300">
+                    <h4 class="text-2xl font-bebas mb-2">TRIBUNA ROYAL</h4>
+                    <p class="text-xs text-gray-500 mb-6 italic">"Experiencia VIP"</p>
+                    <ul class="text-sm space-y-4 mb-8 flex-grow">
+                        <li><i class="fas fa-check text-red-500 mr-2"></i> Silla VIP Reclinable</li>
+                        <li><i class="fas fa-check text-red-500 mr-2"></i> Menú Gourmet</li>
+                        <li><i class="fas fa-check text-red-500 mr-2"></i> Souvenir Oficial</li>
+                    </ul>
+                    <button class="w-full py-4 border border-red-500 text-red-500 text-xs font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition">Seleccionar</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-16 px-6 border-t border-white/5 text-center mb-20 md:mb-0">
+        <div class="flex items-center justify-center gap-3 mb-8">
+            <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center text-black font-black">RF</div>
+            <span class="text-2xl font-bebas tracking-widest">ROYAL FILMS</span>
+        </div>
+        <div class="flex justify-center gap-6 mb-8 text-gray-400 text-xl">
+            <i class="fab fa-instagram hover:text-yellow-500 cursor-pointer"></i>
+            <i class="fab fa-facebook hover:text-yellow-500 cursor-pointer"></i>
+            <i class="fab fa-tiktok hover:text-yellow-500 cursor-pointer"></i>
+        </div>
+        <p class="text-gray-600 text-[10px] tracking-[0.4em] uppercase">La Casa del Fútbol &copy; 2025 - Propuesta Estratégica</p>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('desktopNav');
+            if (window.scrollY > 80) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        function showTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            const buttons = document.querySelectorAll('.tab-btn');
+            
+            contents.forEach(tab => tab.classList.remove('active-tab'));
+            buttons.forEach(btn => btn.classList.remove('active-btn', 'text-yellow-500'));
+            
+            const activeTab = document.getElementById(tabId);
+            if (activeTab) activeTab.classList.add('active-tab');
+            
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) activeBtn.classList.add('active-btn', 'text-yellow-500');
+        }
+
+        window.onload = () => {
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+        };
+    </script>
+</body>
+</html>
